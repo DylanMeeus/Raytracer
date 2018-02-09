@@ -1,5 +1,7 @@
 package net.itca;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.file.attribute.PosixFilePermission;
 
 /**
@@ -28,5 +30,24 @@ public class Point3 implements Triple<Double> {
 
     public Double getC() {
         return c;
+    }
+
+    /**
+     * Subtracting a point from a point returns a vector from A->B
+     * @param point
+     * @return
+     */
+    @NotNull
+    public Vector3 subPoint3(@NotNull Triple<Double> point){
+        return new Vector3(a - point.getA(), b - point.getB(), c - point.getC());
+    }
+
+    /**
+     * Return the dot product of this point and another one
+     * @param vector3
+     * @return
+     */
+    public double dot(@NotNull Triple<Double> point) {
+        return a * point.getA() + b * point.getB() + c * point.getC();
     }
 }

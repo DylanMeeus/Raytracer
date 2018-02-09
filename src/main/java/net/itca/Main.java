@@ -1,5 +1,8 @@
 package net.itca;
 
+import net.itca.geometry.Sphere;
+import net.itca.ray.Ray;
+import net.itca.ray.RayIntersectionChecker;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ public class Main {
                 double u = ((double) x) / xs;
                 double v = ((double) y) / ys;
 
+                // modify for each pixel the actual direction of the vector slightly
                 Vector3 horizontalModifier = horizontal.scalarMultiply(u);
                 Vector3 verticalModifier = vertical.scalarMultiply(v);
                 Ray ray = new Ray(origin, lowerLeftCorner.addVector(horizontalModifier).addVector(verticalModifier));
@@ -39,12 +43,18 @@ public class Main {
             }
         }
         String ppmData = builder.toString();
-        System.out.println(ppmData);
         writeImage(ppmData);
     }
 
 
+    private static Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
+
     public static Colour colourTest(Ray ray) {
+
+        if (RayIntersectionChecker.insersectsSphere(ray, sphere)) {
+            return new Colour(1, 0, 0);
+        }
+
         Vector3 direction = ray.getDirection();
         Vector3 unitDirection = direction.getUnitVector();
         double t = 0.5d * (unitDirection.getB() + 1d);
@@ -53,6 +63,7 @@ public class Main {
         Vector3 res = first.addVector(snd);
         return new Colour(res.getA(), res.getB(), res.getC());
     }
+
 
     /**
      * write an ppm image based on the incoming data

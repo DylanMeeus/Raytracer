@@ -1,5 +1,7 @@
-package net.itca;
+package net.itca.ray;
 
+import net.itca.Point3;
+import net.itca.Vector3;
 import org.jetbrains.annotations.NotNull;
 
 /**
