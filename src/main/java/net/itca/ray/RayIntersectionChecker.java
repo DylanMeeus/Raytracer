@@ -19,7 +19,6 @@ public class RayIntersectionChecker {
      */
     public static boolean insersectsSphere(Ray ray, Sphere sphere) {
         Point3 origin = ray.getOrigin();
-        // treat the origin as a vector
         Vector3 oc = origin.subPoint3(sphere.getCentre());
         double a = ray.getDirection().dot(ray.getDirection());
         double b = 2d * ray.getDirection().dot(oc);
