@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
  * Created by dylan on 09.02.18.
  * Vector in 3d space
  */
-public class Vector3 {
+public class Vector3 implements Triple<Double> {
 
     private double a;
     private double b;
@@ -18,15 +18,15 @@ public class Vector3 {
         this.c = c;
     }
 
-    public double getA(){
+    public Double getA(){
         return a;
     }
 
-    public double getB(){
+    public Double getB(){
         return b;
     }
 
-    public double getC(){
+    public Double getC(){
         return c;
     }
 
@@ -41,22 +41,22 @@ public class Vector3 {
     }
 
     @NotNull
-    public Vector3 addVector(@NotNull Vector3 vector){
+    public Vector3 addVector(@NotNull Triple<Double> vector){
         return new Vector3(a + vector.getA(), b + vector.getB(), c + vector.getC());
     }
 
     @NotNull
-    public Vector3 subVector(@NotNull Vector3 vector){
+    public Vector3 subVector(@NotNull Triple<Double> vector){
         return new Vector3(a - vector.getA(), b - vector.getB(), c - vector.getC());
     }
 
     @NotNull
-    public Vector3 vectorMult(@NotNull Vector3 vector) {
+    public Vector3 vectorMult(@NotNull Triple<Double> vector) {
         return new Vector3(a * vector.getA(), b * vector.getB(), c * vector.getC());
     }
 
     @NotNull
-    public Vector3 vectorDiv(@NotNull Vector3 vector) {
+    public Vector3 vectorDiv(@NotNull Triple<Double> vector) {
         return new Vector3(a / vector.getA(), b / vector.getB(), c / vector.getC());
     }
 
@@ -75,7 +75,7 @@ public class Vector3 {
      * @param vector3
      * @return
      */
-    public double dot(@NotNull Vector3 vector) {
+    public double dot(@NotNull Triple<Double> vector) {
         return a * vector.getA() + b * vector.getB() + c * vector.getC();
     }
 
@@ -85,7 +85,7 @@ public class Vector3 {
      * @return
      */
     @NotNull
-    public Vector3 cross(@NotNull Vector3 vector) {
+    public Vector3 cross(@NotNull Triple<Double> vector) {
         double _a = b * vector.getC() - c * vector.getB();
         double _b = (a * vector.getC() - c * vector.getA()) * -1;
         double _c = a * vector.getB() - b * vector.getA();
