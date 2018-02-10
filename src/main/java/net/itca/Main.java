@@ -50,11 +50,26 @@ public class Main {
     private static Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
 
     public static Colour colourTest(Ray ray) {
-
+        //region <Sphere>
         if (RayIntersectionChecker.insersectsSphere(ray, sphere)) {
-            return new Colour(1, 0, 0);
+            double hitPoint = RayIntersectionChecker.sphereHitPoint(ray, sphere);
+            if (hitPoint > 0d) {
+                // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
+                Vector3 centreToHitpoint = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
+                Vector3 unitVectorCentreHitpoint = centreToHitpoint.getUnitVector();
+                Vector3 modifier = new Vector3(
+                        unitVectorCentreHitpoint.getA() + 1,
+                        unitVectorCentreHitpoint.getB() + 1,
+                        unitVectorCentreHitpoint.getC() + 1
+                );
+                Vector3 colourVector = modifier.scalarMultiply(0.5);
+                return new Colour(colourVector.getA(), colourVector.getB(), colourVector.getC());
+            }
         }
+        //endregion
 
+        // else colour the background gradiant..
+        //region <Background gradient>
         Vector3 direction = ray.getDirection();
         Vector3 unitDirection = direction.getUnitVector();
         double t = 0.5d * (unitDirection.getB() + 1d);
@@ -62,6 +77,7 @@ public class Main {
         Vector3 snd = new Vector3(0.5, 0.7, 1).scalarMultiply(t);
         Vector3 res = first.addVector(snd);
         return new Colour(res.getA(), res.getB(), res.getC());
+        //endregion
     }
 
 

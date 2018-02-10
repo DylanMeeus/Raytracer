@@ -18,13 +18,21 @@ public class RayIntersectionChecker {
      * @return
      */
     public static boolean insersectsSphere(Ray ray, Sphere sphere) {
+        return sphereHitPoint(ray, sphere) > -1;
+    }
+
+    public static double sphereHitPoint(Ray ray, Sphere sphere) {
         Point3 origin = ray.getOrigin();
         Vector3 oc = origin.subPoint3(sphere.getCentre());
         double a = ray.getDirection().dot(ray.getDirection());
         double b = 2d * ray.getDirection().dot(oc);
         double c = oc.dot(oc) - sphere.getRadius() * sphere.getRadius();
         double discriminant = (b * b) - (4 * a * c);
+        if (discriminant < 0) {
+            return -1;
+        } else {
+            return ((b*-1) - Math.sqrt(discriminant)) / (2 * a);
+        }
 
-        return discriminant > 0;
     }
 }
