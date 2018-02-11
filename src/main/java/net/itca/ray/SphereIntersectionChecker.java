@@ -32,12 +32,6 @@ public class SphereIntersectionChecker extends RayIntersectionChecker<Sphere> {
      * @return
      */
     @Override
-    public boolean insersects(@NotNull Sphere sphere, @NotNull  Ray ray) {
-        HitData hitData = getIntersectionHitData(sphere, ray);
-        return hitData.getHitpoint() > -1;
-    }
-
-    @Override
     @NotNull
     public HitData getIntersectionHitData(@NotNull Sphere sphere, @NotNull Ray ray) {
         // todo: don't ignore tmin, tmax
@@ -52,6 +46,6 @@ public class SphereIntersectionChecker extends RayIntersectionChecker<Sphere> {
             hitPoint = ((b*-1) - Math.sqrt(discriminant)) / (2 * a);
         }
         Vector3 normal = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
-        return new HitData(hitPoint, normal, new Vector3(0, 0, 0));
+        return new HitData(true, hitPoint, normal, new Vector3(0, 0, 0));
     }
 }

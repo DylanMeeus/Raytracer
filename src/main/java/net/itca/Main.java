@@ -53,8 +53,8 @@ public class Main {
 
     public static Colour colourTest(Ray ray) {
         //region <Sphere>
-        if (sphereChecker.insersects(sphere, ray)) {
-            HitData data = sphereChecker.getIntersectionHitData(sphere,ray);
+        HitData data = sphereChecker.getIntersectionHitData(sphere, ray);
+        if (data.isHit()) {
             double hitpoint = data.getHitpoint();
             if (hitpoint > 0d) {
                 // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
