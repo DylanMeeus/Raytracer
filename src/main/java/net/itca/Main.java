@@ -1,8 +1,9 @@
 package net.itca;
 
 import net.itca.geometry.Sphere;
+import net.itca.ray.HitData;
 import net.itca.ray.Ray;
-import net.itca.ray.RayIntersectionChecker;
+import net.itca.ray.SphereIntersectionChecker;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -47,15 +48,17 @@ public class Main {
     }
 
 
-    private static Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
+    private static final Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
+    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0, 0);
 
     public static Colour colourTest(Ray ray) {
         //region <Sphere>
-        if (RayIntersectionChecker.insersectsSphere(ray, sphere)) {
-            double hitPoint = RayIntersectionChecker.sphereHitPoint(ray, sphere);
-            if (hitPoint > 0d) {
+        if (sphereChecker.insersects(sphere, ray)) {
+            HitData data = sphereChecker.getIntersectionHitData(sphere,ray);
+            double hitpoint = data.getHitpoint();
+            if (hitpoint > 0d) {
                 // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
-                Vector3 centreToHitpoint = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
+                Vector3 centreToHitpoint = ray.pointAtPosition(hitpoint).subPoint3(sphere.getCentre());
                 Vector3 unitVectorCentreHitpoint = centreToHitpoint.getUnitVector();
                 Vector3 modifier = new Vector3(
                         unitVectorCentreHitpoint.getA() + 1,

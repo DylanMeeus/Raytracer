@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by dylan on 09.02.18.
  */
-public class Sphere {
+public class Sphere implements Renderable {
 
     @NotNull
     private Point3 centre;
