@@ -21,7 +21,8 @@ import java.util.*;
 
 public class Main {
 
-    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(Double.MIN_VALUE, Double.MAX_VALUE);
+    // check rays right in front of the camera. But we add 0.001 to avoid 'shadow acne' (floating point approximation errors)
+    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.001, Double.MAX_VALUE);
 
     public static void main(String[] args) {
         Scene scene = setupScene();
@@ -91,8 +92,8 @@ public class Main {
             if (data.isHit()) {
                 double hitpoint = data.getHitpoint();
                 if (hitpoint > 0d) {
-
                     Objects.requireNonNull(data.getP());
+
                     // apply diffuse lightning to our colour vector
                     @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
 
