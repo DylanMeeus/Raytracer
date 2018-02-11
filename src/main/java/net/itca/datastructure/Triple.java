@@ -1,4 +1,4 @@
-package net.itca;
+package net.itca.datastructure;
 
 /**
  * Created by dylan on 09.02.18.

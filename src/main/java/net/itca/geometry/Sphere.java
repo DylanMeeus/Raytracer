@@ -1,6 +1,6 @@
 package net.itca.geometry;
 
-import net.itca.Point3;
+import net.itca.datastructure.Point3;
 import org.jetbrains.annotations.NotNull;
 
 /**

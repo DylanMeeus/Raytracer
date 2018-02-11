@@ -1,4 +1,4 @@
-package net.itca;
+package net.itca.datastructure;
 
 import org.jetbrains.annotations.NotNull;
 

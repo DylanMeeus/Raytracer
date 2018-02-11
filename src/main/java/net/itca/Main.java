@@ -1,5 +1,7 @@
 package net.itca;
 
+import net.itca.datastructure.Point3;
+import net.itca.datastructure.Vector3;
 import net.itca.geometry.Renderable;
 import net.itca.geometry.Sphere;
 import net.itca.ray.HitData;

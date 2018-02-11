@@ -1,8 +1,6 @@
-package net.itca;
+package net.itca.datastructure;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.nio.file.attribute.PosixFilePermission;
 
 /**
  * Created by dylan on 09.02.18.
