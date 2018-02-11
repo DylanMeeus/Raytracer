@@ -49,7 +49,7 @@ public class Main {
 
 
     private static final Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
-    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0, 0);
+    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(-1, 1);
 
     public static Colour colourTest(Ray ray) {
         //region <Sphere>

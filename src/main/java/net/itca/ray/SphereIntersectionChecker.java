@@ -41,11 +41,26 @@ public class SphereIntersectionChecker extends RayIntersectionChecker<Sphere> {
         double b = 2d * ray.getDirection().dot(oc);
         double c = oc.dot(oc) - sphere.getRadius() * sphere.getRadius();
         double discriminant = (b * b) - (4 * a * c);
-        double hitPoint = -1;
+
         if (discriminant > 0) {
-            hitPoint = ((b*-1) - Math.sqrt(discriminant)) / (2 * a);
+
+            // first of two Discriminant solves
+            double firstRoot = ((b*-1) - Math.sqrt(discriminant)) / (2 * a);
+            double secondRoot = ((b*-1) + Math.sqrt(discriminant)) / (2 * a);
+            Double hitPoint = null;
+
+            // determine if we have hit a root in our range
+            if (firstRoot < tMax && firstRoot > tMin) {
+                hitPoint = firstRoot;
+            } else if (secondRoot < tMax && secondRoot > tMin) {
+                hitPoint = secondRoot;
+            }
+
+            if (hitPoint != null) {
+                Vector3 normal = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
+                return new HitData(true, hitPoint, normal, new Vector3(0, 0, 0));
+            }
         }
-        Vector3 normal = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
-        return new HitData(true, hitPoint, normal, new Vector3(0, 0, 0));
+        return new HitData(false);
     }
 }
