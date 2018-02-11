@@ -55,7 +55,7 @@ public class Main {
                 // take the average of the aliasing loops
                 Colour colour = new Colour(baseColour.getR() / as, baseColour.getG() / as, baseColour.getB() / as);
                 // modify for each pixel the actual direction of the vector slightly
-                double[] rgb = colour.getRGB();
+                double[] rgb = colour.getRGBGammaCorrection();
                 builder.append(String.format("%d %d %d\n", (int) (rgb[0] * 255.99), (int) (rgb[1] * 255.99), (int) (rgb[2] * 255.99)));
             }
         }
@@ -94,12 +94,12 @@ public class Main {
 
                     Objects.requireNonNull(data.getP());
                     // apply diffuse lightning to our colour vector
-                    @NotNull Vector3 colourVector = data.getP().addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
+                    @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
 
                     // we bounce the lightwave off
 
                     Vector3 reflection = colourVector.subVector(data.getP());
-                    Point3 newOrigin = new Point3(data.getP().getA(), data.getP().getB(), data.getP().getC());
+                    Point3 newOrigin = new Point3(data.getP());
                     Colour colour = colourTest(new Ray(newOrigin, reflection), scene);
                     return new Colour(colour.getR() * 0.5, colour.getG() * 0.5, colour.getB() * 0.5);
                 }

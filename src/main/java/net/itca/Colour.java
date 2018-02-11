@@ -31,4 +31,16 @@ public class Colour {
         return new double[]{r, g, b};
     }
 
+    /**
+     * Return the RGB values after applying gamma correction to each
+     * @return
+     */
+    public double[] getRGBGammaCorrection(){
+        double[] normalValues = getRGB();
+        for (int i = 0; i < normalValues.length; i++) {
+            normalValues[i] = Math.sqrt(normalValues[i]);
+        }
+        return normalValues;
+    }
+
 }

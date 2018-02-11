@@ -18,14 +18,23 @@ public class Vector3 implements Triple<Double> {
         this.c = c;
     }
 
+    public Vector3(@NotNull Triple<Double> triple) {
+        this.a = triple.getA();
+        this.b = triple.getB();
+        this.c = triple.getC();
+    }
+
+    @Override
     public Double getA(){
         return a;
     }
 
+    @Override
     public Double getB(){
         return b;
     }
 
+    @Override
     public Double getC(){
         return c;
     }

@@ -1,5 +1,6 @@
 package net.itca.ray;
 
+import net.itca.datastructure.Point3;
 import net.itca.datastructure.Vector3;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,9 +8,9 @@ public class HitData{
 
     // is our hit 'acceptable', with other words, should we render it because of the hit?
     private final boolean isHit;
-    private final Double hitpoint;
+    private final Double hitpoint; // distance along the ray where it hit
     private final Vector3 normal;
-    private final Vector3 p;
+    private final Point3 p; //3d space where it hits
 
     public HitData(boolean isHit){
         this(isHit, null, null, null);
@@ -18,7 +19,7 @@ public class HitData{
     public HitData(boolean isHit,
                    @Nullable Double hitPoint,
                    @Nullable Vector3 normal,
-                   @Nullable Vector3 p){
+                   @Nullable Point3 p){
         this.isHit = isHit;
         this.hitpoint = hitPoint;
         this.normal = normal;
@@ -39,7 +40,7 @@ public class HitData{
     }
 
     @Nullable
-    public Vector3 getP(){
+    public Point3 getP(){
         return p;
     }
 }

@@ -58,7 +58,7 @@ public class SphereIntersectionChecker extends RayIntersectionChecker<Sphere> {
 
             if (hitPoint != null) {
                 Vector3 normal = ray.pointAtPosition(hitPoint).subPoint3(sphere.getCentre());
-                return new HitData(true, hitPoint, normal, new Vector3(0, 0, 0));
+                return new HitData(true, hitPoint, normal, ray.pointAtPosition(hitPoint));
             }
         }
         return new HitData(false);
