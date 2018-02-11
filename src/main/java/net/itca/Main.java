@@ -1,9 +1,11 @@
 package net.itca;
 
+import net.itca.geometry.Renderable;
 import net.itca.geometry.Sphere;
 import net.itca.ray.HitData;
 import net.itca.ray.Ray;
 import net.itca.ray.SphereIntersectionChecker;
+import net.itca.scene.Scene;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -11,12 +13,17 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
+    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(Double.MIN_VALUE, Double.MAX_VALUE);
 
+    public static void main(String[] args) {
+        Scene scene = setupScene();
+        //region <Raytrace>
         StringBuilder builder = new StringBuilder();
         builder.append("P3\n");
         int xs = 200;
@@ -38,35 +45,45 @@ public class Main {
                 Vector3 horizontalModifier = horizontal.scalarMultiply(u);
                 Vector3 verticalModifier = vertical.scalarMultiply(v);
                 Ray ray = new Ray(origin, lowerLeftCorner.addVector(horizontalModifier).addVector(verticalModifier));
-                Colour colour = colourTest(ray);
+                Colour colour = colourTest(ray,scene);
                 double[] rgb = colour.getRGB();
                 builder.append(String.format("%d %d %d\n", (int) (rgb[0] * 255.99), (int) (rgb[1] * 255.99), (int) (rgb[2] * 255.99)));
             }
         }
         String ppmData = builder.toString();
         writeImage(ppmData);
+        //endregion
+    }
+
+    @NotNull
+    private static Scene setupScene(){
+        List<Renderable> objects = new ArrayList<>();
+        final Sphere sphere1 = new Sphere(new Point3(0, 0, -1), 0.5);
+        final Sphere sphere2 = new Sphere(new Point3(0, -100.5, -1), 100);
+        objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2));
+        return new Scene(objects);
     }
 
 
-    private static final Sphere sphere = new Sphere(new Point3(0, 0, -1), 0.5);
-    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(-1, 1);
-
-    public static Colour colourTest(Ray ray) {
+    public static Colour colourTest(Ray ray, Scene scene) {
         //region <Sphere>
-        HitData data = sphereChecker.getIntersectionHitData(sphere, ray);
-        if (data.isHit()) {
-            double hitpoint = data.getHitpoint();
-            if (hitpoint > 0d) {
-                // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
-                Vector3 centreToHitpoint = ray.pointAtPosition(hitpoint).subPoint3(sphere.getCentre());
-                Vector3 unitVectorCentreHitpoint = centreToHitpoint.getUnitVector();
-                Vector3 modifier = new Vector3(
-                        unitVectorCentreHitpoint.getA() + 1,
-                        unitVectorCentreHitpoint.getB() + 1,
-                        unitVectorCentreHitpoint.getC() + 1
-                );
-                Vector3 colourVector = modifier.scalarMultiply(0.5);
-                return new Colour(colourVector.getA(), colourVector.getB(), colourVector.getC());
+        for (Renderable renderable : scene.getRenderables()) {
+            Sphere sphere = (Sphere) renderable;
+            HitData data = sphereChecker.getIntersectionHitData(sphere, ray);
+            if (data.isHit()) {
+                double hitpoint = data.getHitpoint();
+                if (hitpoint > 0d) {
+                    // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
+                    Vector3 centreToHitpoint = ray.pointAtPosition(hitpoint).subPoint3(sphere.getCentre());
+                    Vector3 unitVectorCentreHitpoint = centreToHitpoint.getUnitVector();
+                    Vector3 modifier = new Vector3(
+                            unitVectorCentreHitpoint.getA() + 1,
+                            unitVectorCentreHitpoint.getB() + 1,
+                            unitVectorCentreHitpoint.getC() + 1
+                    );
+                    Vector3 colourVector = modifier.scalarMultiply(0.5);
+                    return new Colour(colourVector.getA(), colourVector.getB(), colourVector.getC());
+                }
             }
         }
         //endregion
