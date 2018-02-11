@@ -7,6 +7,7 @@ import net.itca.geometry.Sphere;
 import net.itca.ray.HitData;
 import net.itca.ray.Ray;
 import net.itca.ray.SphereIntersectionChecker;
+import net.itca.scene.Camera;
 import net.itca.scene.Scene;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Main {
 
@@ -28,26 +30,38 @@ public class Main {
         //region <Raytrace>
         StringBuilder builder = new StringBuilder();
         builder.append("P3\n");
-        int xs = 200;
-        int ys = 100;
 
-        Vector3 lowerLeftCorner = new Vector3(-2, -1, -1);
-        Vector3 horizontal = new Vector3(4, 0, 0);
-        Vector3 vertical = new Vector3(0, 2, 0);
-        Point3 origin = new Point3(0, 0, 0);
+        final int xs = 200;
+        final int ys = 100;
+        final int as = 100; // anti=aliasing factor
+
+        final Vector3 lowerLeftCorner = new Vector3(-2, -1, -1);
+        final Vector3 horizontal = new Vector3(4, 0, 0);
+        final Vector3 vertical = new Vector3(0, 2, 0);
+        final Point3 origin = new Point3(0, 0, 0);
+        final Camera camera = new Camera(lowerLeftCorner, horizontal, vertical, origin);
+
+        // for anti-aliasing, apply a small random factor to each offset!
+        Random rand = new Random();
 
         builder.append(String.format("%d %d 255\n", xs, ys));
 
         for(int y = ys-1; y >= 0; y--) {
             for (int x = 0; x < xs; x++) {
-                double u = ((double) x) / xs;
-                double v = ((double) y) / ys;
-
+                // avoid having "1" as random value (because we'd be off a pixel!)
+                Colour baseColour = new Colour(0, 0, 0);
+                for (int aliasingLoop = 0; aliasingLoop < as; aliasingLoop++) {
+                    double u = (x + rand.nextDouble() - 0.11111d) / xs;
+                    double v = (y + rand.nextDouble()- 0.1111d) / ys;
+                    Ray ray = camera.getRay(u, v);
+                    Colour hitColour = colourTest(ray,scene);
+                    baseColour = new Colour(baseColour.getR() + hitColour.getR(),
+                            baseColour.getG() + hitColour.getG(),
+                            baseColour.getB() + hitColour.getB());
+                }
+                // take the average of the aliasing loops
+                Colour colour = new Colour(baseColour.getR() / as, baseColour.getG() / as, baseColour.getB() / as);
                 // modify for each pixel the actual direction of the vector slightly
-                Vector3 horizontalModifier = horizontal.scalarMultiply(u);
-                Vector3 verticalModifier = vertical.scalarMultiply(v);
-                Ray ray = new Ray(origin, lowerLeftCorner.addVector(horizontalModifier).addVector(verticalModifier));
-                Colour colour = colourTest(ray,scene);
                 double[] rgb = colour.getRGB();
                 builder.append(String.format("%d %d %d\n", (int) (rgb[0] * 255.99), (int) (rgb[1] * 255.99), (int) (rgb[2] * 255.99)));
             }
