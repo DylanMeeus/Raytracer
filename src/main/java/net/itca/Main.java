@@ -9,6 +9,7 @@ import net.itca.ray.Ray;
 import net.itca.ray.SphereIntersectionChecker;
 import net.itca.scene.Camera;
 import net.itca.scene.Scene;
+import net.itca.util.DiffuseUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -16,10 +17,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Main {
 
@@ -27,6 +25,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scene scene = setupScene();
+        Camera camera = setupCamera();
         //region <Raytrace>
         StringBuilder builder = new StringBuilder();
         builder.append("P3\n");
@@ -34,12 +33,6 @@ public class Main {
         final int xs = 200;
         final int ys = 100;
         final int as = 100; // anti=aliasing factor
-
-        final Vector3 lowerLeftCorner = new Vector3(-2, -1, -1);
-        final Vector3 horizontal = new Vector3(4, 0, 0);
-        final Vector3 vertical = new Vector3(0, 2, 0);
-        final Point3 origin = new Point3(0, 0, 0);
-        final Camera camera = new Camera(lowerLeftCorner, horizontal, vertical, origin);
 
         // for anti-aliasing, apply a small random factor to each offset!
         Random rand = new Random();
@@ -72,6 +65,15 @@ public class Main {
     }
 
     @NotNull
+    private static Camera setupCamera(){
+        final Vector3 lowerLeftCorner = new Vector3(-2, -1, -1);
+        final Vector3 horizontal = new Vector3(4, 0, 0);
+        final Vector3 vertical = new Vector3(0, 2, 0);
+        final Point3 origin = new Point3(0, 0, 0);
+        return new Camera(lowerLeftCorner, horizontal, vertical, origin);
+    }
+
+    @NotNull
     private static Scene setupScene(){
         List<Renderable> objects = new ArrayList<>();
         final Sphere sphere1 = new Sphere(new Point3(0, 0, -1), 0.5);
@@ -89,16 +91,17 @@ public class Main {
             if (data.isHit()) {
                 double hitpoint = data.getHitpoint();
                 if (hitpoint > 0d) {
-                    // vector from the centre of the sphere to the hitpoint -> This is the normal to the surface
-                    Vector3 centreToHitpoint = ray.pointAtPosition(hitpoint).subPoint3(sphere.getCentre());
-                    Vector3 unitVectorCentreHitpoint = centreToHitpoint.getUnitVector();
-                    Vector3 modifier = new Vector3(
-                            unitVectorCentreHitpoint.getA() + 1,
-                            unitVectorCentreHitpoint.getB() + 1,
-                            unitVectorCentreHitpoint.getC() + 1
-                    );
-                    Vector3 colourVector = modifier.scalarMultiply(0.5);
-                    return new Colour(colourVector.getA(), colourVector.getB(), colourVector.getC());
+
+                    Objects.requireNonNull(data.getP());
+                    // apply diffuse lightning to our colour vector
+                    @NotNull Vector3 colourVector = data.getP().addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
+
+                    // we bounce the lightwave off
+
+                    Vector3 reflection = colourVector.subVector(data.getP());
+                    Point3 newOrigin = new Point3(data.getP().getA(), data.getP().getB(), data.getP().getC());
+                    Colour colour = colourTest(new Ray(newOrigin, reflection), scene);
+                    return new Colour(colour.getR() * 0.5, colour.getG() * 0.5, colour.getB() * 0.5);
                 }
             }
         }
@@ -126,6 +129,7 @@ public class Main {
         try {
             String[] lines = data.split("\n");
             Files.write(path, Arrays.asList(lines), Charset.defaultCharset());
+            System.out.println("Wrote image to: " + path.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
