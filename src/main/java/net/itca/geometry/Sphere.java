@@ -1,6 +1,7 @@
 package net.itca.geometry;
 
 import net.itca.datastructure.Point3;
+import net.itca.geometry.material.Material;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,12 +10,18 @@ import org.jetbrains.annotations.NotNull;
 public class Sphere implements Renderable {
 
     @NotNull
-    private Point3 centre;
-    private double radius;
+    private final Point3 centre;
+    private final double radius;
 
-    public Sphere(@NotNull Point3 centre, double radius) {
+    @NotNull
+    private final Material material;
+
+    public Sphere(@NotNull Point3 centre,
+                  double radius,
+                  @NotNull Material material) {
         this.centre = centre;
         this.radius = radius;
+        this.material = material;
     }
 
     @NotNull
@@ -26,4 +33,9 @@ public class Sphere implements Renderable {
         return radius;
     }
 
+    @Override
+    @NotNull
+    public Material getMaterial() {
+        return material;
+    }
 }

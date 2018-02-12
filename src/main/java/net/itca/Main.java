@@ -4,6 +4,9 @@ import net.itca.datastructure.Point3;
 import net.itca.datastructure.Vector3;
 import net.itca.geometry.Renderable;
 import net.itca.geometry.Sphere;
+import net.itca.geometry.material.Lambertian;
+import net.itca.geometry.material.Metal;
+import net.itca.geometry.material.ScatterData;
 import net.itca.ray.HitData;
 import net.itca.ray.Ray;
 import net.itca.ray.SphereIntersectionChecker;
@@ -22,7 +25,7 @@ import java.util.*;
 public class Main {
 
     // check rays right in front of the camera. But we add 0.001 to avoid 'shadow acne' (floating point approximation errors)
-    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.001, Double.MAX_VALUE);
+    private static final SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.01, Double.MAX_VALUE);
 
     public static void main(String[] args) {
         Scene scene = setupScene();
@@ -48,7 +51,7 @@ public class Main {
                     double u = (x + rand.nextDouble() - 0.11111d) / xs;
                     double v = (y + rand.nextDouble()- 0.1111d) / ys;
                     Ray ray = camera.getRay(u, v);
-                    Colour hitColour = colourTest(ray,scene);
+                    Colour hitColour = colourTest(ray,scene,0);
                     baseColour = new Colour(baseColour.getR() + hitColour.getR(),
                             baseColour.getG() + hitColour.getG(),
                             baseColour.getB() + hitColour.getB());
@@ -77,47 +80,17 @@ public class Main {
     @NotNull
     private static Scene setupScene(){
         List<Renderable> objects = new ArrayList<>();
-        final Sphere sphere1 = new Sphere(new Point3(0, 0, -1), 0.5);
-        final Sphere sphere2 = new Sphere(new Point3(0, -100.5, -1), 100);
-        objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2));
+        final Sphere sphere1 = new Sphere(new Point3(0, 0, -1), 0.5, new Lambertian(new Colour(0.8, 0.3, 0.3)));
+        final Sphere sphere2 = new Sphere(new Point3(0, -100.5, -1), 100, new Lambertian(new Colour(0.8, 0.8, 0)));
+        final Sphere sphere3 = new Sphere(new Point3(1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.6, 0.2)));
+        final Sphere sphere4 = new Sphere(new Point3(-1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.8, 0.8)));
+        objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2,sphere3,sphere4));
         return new Scene(objects);
     }
 
 
-    public static Colour colourTest(Ray ray, Scene scene) {
-        //region <Sphere>
-        for (Renderable renderable : scene.getRenderables()) {
-            Sphere sphere = (Sphere) renderable;
-            HitData data = sphereChecker.getIntersectionHitData(sphere, ray);
-            if (data.isHit()) {
-                double hitpoint = data.getHitpoint();
-                if (hitpoint > 0d) {
-                    Objects.requireNonNull(data.getP());
-
-                    // apply diffuse lightning to our colour vector
-                    @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
-
-                    // we bounce the lightwave off
-
-                    Vector3 reflection = colourVector.subVector(data.getP());
-                    Point3 newOrigin = new Point3(data.getP());
-                    Colour colour = colourTest(new Ray(newOrigin, reflection), scene);
-                    return new Colour(colour.getR() * 0.5, colour.getG() * 0.5, colour.getB() * 0.5);
-                }
-            }
-        }
-        //endregion
-
-        // else colour the background gradiant..
-        //region <Background gradient>
-        Vector3 direction = ray.getDirection();
-        Vector3 unitDirection = direction.getUnitVector();
-        double t = 0.5d * (unitDirection.getB() + 1d);
-        Vector3 first = new Vector3(1, 1, 1).scalarMultiply(1 - t);
-        Vector3 snd = new Vector3(0.5, 0.7, 1).scalarMultiply(t);
-        Vector3 res = first.addVector(snd);
-        return new Colour(res.getA(), res.getB(), res.getC());
-        //endregion
+    public static Colour colourTest(Ray ray, Scene scene, int depth) {
+        return scene.castRay(ray);
     }
 
 
