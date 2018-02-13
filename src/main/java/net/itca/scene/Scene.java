@@ -25,7 +25,7 @@ import java.util.Objects;
 public class Scene {
 
     @NotNull
-    private static SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.001, Double.MAX_VALUE);
+    private static SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.000001, Double.MAX_VALUE);
 
     @NotNull
     private final List<Renderable> renderables;
@@ -59,11 +59,6 @@ public class Scene {
             double hitpoint = data.getHitpoint();
             if (hitpoint > 0d) {
                 Objects.requireNonNull(data.getP());
-
-                // apply diffuse lighting to our colour vector
-                @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
-                // we bounce the lightwave off
-
                 Colour attenuation = new Colour(0, 0, 0); // an initual attenuation
                 ScatterData scatterData = renderable.getMaterial().scatter(ray, attenuation, data);
 
@@ -74,7 +69,7 @@ public class Scene {
                     return new Colour(
                             colour.getR() * attenuation.getR(),
                             colour.getG() * attenuation.getG(),
-                            colour.getB() + attenuation.getB()
+                            colour.getB() * attenuation.getB()
                     );
                 } else {
                     return new Colour(0, 0, 0);
@@ -83,7 +78,7 @@ public class Scene {
         }
         //endregion
 
-        // else colour the background gradiant..
+        // else colour a background gradiant..
         //region <Background gradient>
         Vector3 direction = ray.getDirection();
         Vector3 unitDirection = direction.getUnitVector();
