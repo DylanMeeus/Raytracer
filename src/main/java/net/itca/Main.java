@@ -15,6 +15,7 @@ import net.itca.scene.Scene;
 import net.itca.util.DiffuseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.text.html.HTMLDocument;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -84,7 +85,11 @@ public class Main {
         final Sphere sphere2 = new Sphere(new Point3(0, -100.5, -1), 100, new Lambertian(new Colour(0.8, 0.8, 0)));
         final Sphere sphere3 = new Sphere(new Point3(1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.6, 0.2)));
         final Sphere sphere4 = new Sphere(new Point3(-1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.8, 0.8)));
-        objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2,sphere3,sphere4));
+        //objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2,sphere3,sphere4));
+
+        final Sphere one = new Sphere(new Point3(0, 0, -1), 0.5, new Metal(new Colour(.6, .4, .3)));
+        objects.add(one);
+
         return new Scene(objects);
     }
 
@@ -99,7 +104,8 @@ public class Main {
      * @param data
      */
     public static void writeImage(@NotNull String data){
-        Path path = Paths.get("/home/dylan/Development/Code/java/Raytracer/src/main/resources/image.ppm");
+        Path path = Paths.get("image.ppm");
+
         try {
             String[] lines = data.split("\n");
             Files.write(path, Arrays.asList(lines), Charset.defaultCharset());
