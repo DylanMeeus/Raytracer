@@ -44,7 +44,6 @@ public class Dielectric implements Material {
         Vector3 refraction = refract(ray, outwardNormal, niOverNt);
         Ray scatteredRay = null;
         Objects.requireNonNull(originalHitData.getP());
-        boolean shouldReflectMore = false;
 
         // randomize the refraction (schlick approx)
         double schlickProbability = 1;
@@ -52,9 +51,7 @@ public class Dielectric implements Material {
         // add some refraction probability, and add reflectiong
         if (refraction != null) {
             schlickProbability = createSchlickApproximation(cosine, refrationIndex);
-            shouldReflectMore = true;
         }
-        scatteredRay = new Ray(originalHitData.getP(), reflected);
 
 
         Random rand = new Random();
@@ -64,8 +61,7 @@ public class Dielectric implements Material {
             scatteredRay = new Ray(originalHitData.getP(), refraction);
         }
 
-        ScatterData scatterData = new ScatterData(shouldReflectMore, scatteredRay, attenuation);
-        return scatterData;
+        return new ScatterData(true, scatteredRay, attenuation);
     }
 
     @Nullable
@@ -80,8 +76,7 @@ public class Dielectric implements Material {
             Vector3 refractionDirection = unitDirection.subVector(scaledNormal);
             Vector3 scaledRefDir = refractionDirection.scalarMultiply(niOverNt);
             Vector3 normalDisc = normal.scalarMultiply(Math.sqrt(discriminant));
-            Vector3 refracted = scaledRefDir.subVector(normalDisc);
-            return refracted;
+            return scaledRefDir.subVector(normalDisc);
         }
         return null;
     }
