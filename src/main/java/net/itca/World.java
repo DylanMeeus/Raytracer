@@ -51,8 +51,8 @@ public class World {
         List<Renderable> objects = new ArrayList<>();
         final Sphere sphere1 = new Sphere(new Point3(0, 0, -1), 0.5, new Lambertian(new Colour(0.8, 0.3, 0.3)));
         final Sphere sphere2 = new Sphere(new Point3(0, -100.5, -1), 100, new Lambertian(new Colour(0.8, 0.8, 0)));
-        final Sphere sphere3 = new Sphere(new Point3(1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.6, 0.2)));
-        final Sphere sphere4 = new Sphere(new Point3(-1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.8, 0.8)));
+        final Sphere sphere3 = new Sphere(new Point3(1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.6, 0.2),0.3));
+        final Sphere sphere4 = new Sphere(new Point3(-1, 0, -1), 0.5, new Metal(new Colour(0.8, 0.8, 0.8), 1));
         objects.addAll(Arrays.<Renderable>asList(sphere1, sphere2,sphere3,sphere4));
         return new Scene(objects);
     }
