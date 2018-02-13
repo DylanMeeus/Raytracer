@@ -34,11 +34,11 @@ public class Dielectric implements Material {
             // we were pointing inside, so turn it around
             outwardNormal = originalHitData.getNormal().scalarMultiply(-1);
             niOverNt = refrationIndex;
-            cosine = refrationIndex * (ray.getDirection().dot(originalHitData.getNormal())) / ray.getDirection().length();
+            cosine = (refrationIndex * (ray.getDirection().dot(originalHitData.getNormal()))) / ray.getDirection().length();
         } else {
             outwardNormal = originalHitData.getNormal();
             niOverNt = 1 / refrationIndex;
-            cosine = (-1) * (refrationIndex * (ray.getDirection().dot(originalHitData.getNormal())) / ray.getDirection().length());
+            cosine = (-1 * ray.getDirection().dot(originalHitData.getNormal())) / ray.getDirection().length();
         }
 
         Vector3 refraction = refract(ray, outwardNormal, niOverNt);
@@ -54,13 +54,14 @@ public class Dielectric implements Material {
             schlickProbability = createSchlickApproximation(cosine, refrationIndex);
             shouldReflectMore = true;
         }
+        scatteredRay = new Ray(originalHitData.getP(), reflected);
 
 
         Random rand = new Random();
         if (rand.nextDouble() < schlickProbability) {
-            scatteredRay = new Ray(originalHitData.getP(), refraction);
-        } else {
             scatteredRay = new Ray(originalHitData.getP(), reflected);
+        } else {
+            scatteredRay = new Ray(originalHitData.getP(), refraction);
         }
 
         ScatterData scatterData = new ScatterData(shouldReflectMore, scatteredRay, attenuation);

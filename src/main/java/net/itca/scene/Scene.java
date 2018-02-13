@@ -25,7 +25,7 @@ import java.util.Objects;
 public class Scene {
 
     @NotNull
-    private static SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.000001, Double.MAX_VALUE);
+    private static SphereIntersectionChecker sphereChecker = new SphereIntersectionChecker(0.001, Double.MAX_VALUE);
 
     @NotNull
     private final List<Renderable> renderables;
