@@ -50,36 +50,45 @@ public class Scene {
      */
     @NotNull
     private Colour castRay(@NotNull Ray ray, int depth){
-            // todo:: Pass in the world instead of the Sphere because we want the _world_ to be checked!!!
-            // otherwise we just override ones we found
         Tuple<Renderable, HitData> closestHit = getClosestHit(ray);
         HitData data = closestHit.getB();
         Renderable renderable = closestHit.getA();
         if (data != null) {
-            double hitpoint = data.getHitpoint();
-            if (hitpoint > 0d) {
-                Objects.requireNonNull(data.getP());
-                Colour attenuation = new Colour(0, 0, 0); // an initual attenuation
-                ScatterData scatterData = renderable.getMaterial().scatter(ray, attenuation, data);
+            return getRenderableColour(ray, renderable, data, depth);
+        }
+        return createBackgroundGradient(ray);
+    }
 
-                if (depth < 50 && scatterData.isReflected()) {
-                    attenuation = scatterData.getAttenuation();
-                    Ray scatteredRay = scatterData.getScatteredRay();
-                    Colour colour = castRay(scatteredRay, depth + 1);
-                    return new Colour(
-                            colour.getR() * attenuation.getR(),
-                            colour.getG() * attenuation.getG(),
-                            colour.getB() * attenuation.getB()
-                    );
-                } else {
-                    return new Colour(0, 0, 0);
-                }
+    @NotNull
+    private Colour getRenderableColour(@NotNull Ray ray,
+                                       @NotNull Renderable renderable,
+                                       @NotNull HitData data,
+                                       int depth){
+        double hitpoint = data.getHitpoint();
+        if (hitpoint > 0d) {
+            Objects.requireNonNull(data.getP());
+            Colour attenuation = new Colour(0, 0, 0); // an initual attenuation
+            ScatterData scatterData = renderable.getMaterial().scatter(ray, attenuation, data);
+
+            if (depth < 50 && scatterData.isReflected()) {
+                attenuation = scatterData.getAttenuation();
+                Ray scatteredRay = scatterData.getScatteredRay();
+                Colour colour = castRay(scatteredRay, depth + 1);
+                return new Colour(
+                        colour.getR() * attenuation.getR(),
+                        colour.getG() * attenuation.getG(),
+                        colour.getB() * attenuation.getB()
+                );
+            } else {
+                return new Colour(0, 0, 0);
             }
         }
-        //endregion
+        // else our hitpoint does not lie in the range, and we just return the background gradient
+        return createBackgroundGradient(ray);
+    }
 
-        // else colour a background gradiant..
-        //region <Background gradient>
+    @NotNull
+    private Colour createBackgroundGradient(@NotNull Ray ray){
         Vector3 direction = ray.getDirection();
         Vector3 unitDirection = direction.getUnitVector();
         double t = 0.5d * (unitDirection.getB() + 1d);
@@ -87,7 +96,6 @@ public class Scene {
         Vector3 snd = new Vector3(0.5, 0.7, 1).scalarMultiply(t);
         Vector3 res = first.addVector(snd);
         return new Colour(res.getA(), res.getB(), res.getC());
-        //endregion
     }
 
     @Nullable
