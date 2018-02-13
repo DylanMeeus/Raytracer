@@ -1,6 +1,8 @@
 package net.itca.scene;
 
 import net.itca.Colour;
+import net.itca.datastructure.Point3;
+import net.itca.datastructure.Tuple;
 import net.itca.datastructure.Vector3;
 import net.itca.geometry.Renderable;
 import net.itca.geometry.Sphere;
@@ -48,36 +50,34 @@ public class Scene {
      */
     @NotNull
     private Colour castRay(@NotNull Ray ray, int depth){
-        for (Renderable renderable : getRenderables()) {
-            Sphere sphere = (Sphere) renderable;
             // todo:: Pass in the world instead of the Sphere because we want the _world_ to be checked!!!
             // otherwise we just override ones we found
-            HitData data = sphereChecker.getIntersectionHitData(sphere, ray);
-            if (data.isHit()) {
-                double hitpoint = data.getHitpoint();
-                if (hitpoint > 0d) {
-                    Objects.requireNonNull(data.getP());
+        Tuple<Renderable, HitData> closestHit = getClosestHit(ray);
+        HitData data = closestHit.getB();
+        Renderable renderable = closestHit.getA();
+        if (data != null) {
+            double hitpoint = data.getHitpoint();
+            if (hitpoint > 0d) {
+                Objects.requireNonNull(data.getP());
 
-                    // apply diffuse lighting to our colour vector
-                    @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
-                    // we bounce the lightwave off
+                // apply diffuse lighting to our colour vector
+                @NotNull Vector3 colourVector = new Vector3(data.getP()).addVector(data.getNormal()).addVector(DiffuseUtil.randomUnitSphereVector());
+                // we bounce the lightwave off
 
+                Colour attenuation = new Colour(0, 0, 0); // an initual attenuation
+                ScatterData scatterData = renderable.getMaterial().scatter(ray, attenuation, data);
 
-                    Colour attenuation = new Colour(0,0,0); // an initual attenuation
-                    ScatterData scatterData = sphere.getMaterial().scatter(ray, attenuation, data);
-
-                    if (depth < 50 && scatterData.isReflected()) {
-                        attenuation = scatterData.getAttenuation();
-                        Ray scatteredRay = scatterData.getScatteredRay();
-                        Colour colour = castRay(scatteredRay , depth + 1);
-                        return new Colour(
-                                colour.getR() * attenuation.getR(),
-                                colour.getG() * attenuation.getG(),
-                                colour.getB() + attenuation.getB()
-                        );
-                    } else {
-                        return new Colour(0, 0, 0);
-                    }
+                if (depth < 50 && scatterData.isReflected()) {
+                    attenuation = scatterData.getAttenuation();
+                    Ray scatteredRay = scatterData.getScatteredRay();
+                    Colour colour = castRay(scatteredRay, depth + 1);
+                    return new Colour(
+                            colour.getR() * attenuation.getR(),
+                            colour.getG() * attenuation.getG(),
+                            colour.getB() + attenuation.getB()
+                    );
+                } else {
+                    return new Colour(0, 0, 0);
                 }
             }
         }
@@ -95,8 +95,20 @@ public class Scene {
         //endregion
     }
 
-    @NotNull
-    private HitData getClosestHit(Ray ray) {
-        return new HitData(false);
+    @Nullable
+    private Tuple<Renderable, HitData> getClosestHit(Ray ray) {
+        HitData hitData = null;
+        Sphere sphere = null;
+        for (Renderable renderable : getRenderables()) {
+            Sphere currentSphere = (Sphere) renderable;
+            HitData hit = sphereChecker.getIntersectionHitData(currentSphere, ray);
+            if (hit.isHit()) {
+                if (hitData == null || hit.getHitpoint() < hitData.getHitpoint()) {
+                    hitData = hit;
+                    sphere = currentSphere;
+                }
+            }
+        }
+        return new Tuple<>(sphere, hitData);
     }
 }
