@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * Created by dylan on 13.02.18.
@@ -27,25 +28,41 @@ public class Dielectric implements Material {
         double niOverNt;
         attenuation = new Colour(1, 1, 1);
         Vector3 outwardNormal = null;
+        double cosine;
+
         if (ray.getDirection().dot(originalHitData.getNormal()) > 0) {
             // we were pointing inside, so turn it around
             outwardNormal = originalHitData.getNormal().scalarMultiply(-1);
             niOverNt = refrationIndex;
+            cosine = refrationIndex * (ray.getDirection().dot(originalHitData.getNormal())) / ray.getDirection().length();
         } else {
             outwardNormal = originalHitData.getNormal();
             niOverNt = 1 / refrationIndex;
+            cosine = (-1) * (refrationIndex * (ray.getDirection().dot(originalHitData.getNormal())) / ray.getDirection().length());
         }
 
         Vector3 refraction = refract(ray, outwardNormal, niOverNt);
         Ray scatteredRay = null;
         Objects.requireNonNull(originalHitData.getP());
         boolean shouldReflectMore = false;
+
+        // randomize the refraction (schlick approx)
+        double schlickProbability = 1;
+
+        // add some refraction probability, and add reflectiong
         if (refraction != null) {
-            scatteredRay = new Ray(originalHitData.getP(), refraction);
+            schlickProbability = createSchlickApproximation(cosine, refrationIndex);
             shouldReflectMore = true;
+        }
+
+
+        Random rand = new Random();
+        if (rand.nextDouble() < schlickProbability) {
+            scatteredRay = new Ray(originalHitData.getP(), refraction);
         } else {
             scatteredRay = new Ray(originalHitData.getP(), reflected);
         }
+
         ScatterData scatterData = new ScatterData(shouldReflectMore, scatteredRay, attenuation);
         return scatterData;
     }
@@ -75,4 +92,11 @@ public class Dielectric implements Material {
         normal = normal.scalarMultiply(dot).scalarMultiply(2);
         return unitDirection.subVector(normal);
     }
+
+    double createSchlickApproximation(double cosine, double refIndex) {
+        double r0 = (1 - refIndex) / (1 + refIndex);
+        r0 = Math.pow(r0, 2);
+        return r0 + ((1 - r0) * Math.pow((1 - cosine), 5));
+    }
+
 }
