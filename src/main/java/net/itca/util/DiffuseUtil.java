@@ -9,7 +9,7 @@ import java.util.Random;
  * Created by dylan on 11.02.18.
  * Utility class for creating diffuse materials (Matte)
  */
-public class DiffuseUtil {
+public interface DiffuseUtil {
 
     /**
      * Create a random vector inside a unit sphere
