@@ -40,11 +40,11 @@ public class World {
 
     @NotNull
     private Camera setupCamera(){
-        final Vector3 lowerLeftCorner = new Vector3(-2, -1, -1);
-        final Vector3 horizontal = new Vector3(4, 0, 0);
-        final Vector3 vertical = new Vector3(0, 2, 0);
-        final Point3 origin = new Point3(0, 0, 0);
-        return new Camera(lowerLeftCorner, horizontal, vertical, origin);
+        return new Camera(new Point3(-2, 2, 1),
+                new Vector3(0, 0, -1),
+                new Vector3(0, 1, 0),
+                90,
+                (double) xs / (double) ys);
     }
 
     @NotNull
