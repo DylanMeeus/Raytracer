@@ -40,11 +40,17 @@ public class World {
 
     @NotNull
     private Camera setupCamera(){
-        return new Camera(new Point3(-2, 2, 1),
-                new Vector3(0, 0, -1),
+        double aperture = 2;
+        Point3 lookFrom = new Point3(3,3,2);
+        Vector3 lookAt = new Vector3(0, 0, -1);
+        double focusDistance = lookFrom.subPoint3(lookAt).length();
+        return new Camera(lookFrom,
+                lookAt,
                 new Vector3(0, 1, 0),
-                90,
-                (double) xs / (double) ys);
+                20,
+                (double) xs / (double) ys,
+                aperture,
+                focusDistance);
     }
 
     @NotNull
